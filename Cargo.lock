@@ -2647,6 +2647,7 @@ dependencies = [
  "arbitrary",
  "libfuzzer-sys",
  "monty",
+ "monty-alloc",
  "monty-types",
 ]
 

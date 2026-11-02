@@ -11,7 +11,15 @@ cargo-fuzz = true
 arbitrary = { version = "1", features = ["derive"] }
 libfuzzer-sys = "0.4"
 monty = { workspace = true }
+# Only the `ast_panic` target and the `fuzz_tool` example install it as the
+# global allocator, which is what makes `ResourceLimits::max_memory` enforced.
+monty-alloc = { workspace = true }
 monty-types = { workspace = true }
+
+[features]
+# Forwards Monty's leak detector: dropping a `Value::Ref` without `drop_with`
+# panics, and garbage collection runs on every allocation. Very slow.
+memory-model-checks = ["monty/memory-model-checks"]
 
 [[bin]]
 name = "string_input_panic"
@@ -23,6 +31,13 @@ bench = false
 [[bin]]
 name = "tokens_input_panic"
 path = "fuzz_targets/tokens_input_panic.rs"
+test = false
+doc = false
+bench = false
+
+[[bin]]
+name = "ast_panic"
+path = "fuzz_targets/ast_panic.rs"
 test = false
 doc = false
 bench = false
