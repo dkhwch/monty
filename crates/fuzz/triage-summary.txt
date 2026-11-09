@@ -1,0 +1,6 @@
+COUNT   LOCATION                                                      MESSAGE
+334     crates/monty/src/builtins/enumerate.rs:51:9                   attempt to add with overflow
+54      no-panic:ERROR: libFuzzer: deadly                             
+
+Details (input, program.py, log.txt) per location in /home/ubuntu/monty/crates/fuzz/triage/
+Reproduce one outside libFuzzer: cargo run -p monty-fuzz --example fuzz_tool -- run <dir>/program.py

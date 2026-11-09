@@ -79,6 +79,20 @@ Findings land in `crates/fuzz/artifacts/ast_panic/` as `crash-*` (panics), `time
 Reading the status lines: `cov` is the number of covered code edges (it rises while the fuzzer finds new code, a long plateau means it is stuck), `ft` counts finer-grained features (edge plus hit-count bucket), `corp` is the corpus size, `exec/s` the speed.
 `cov` includes the generator's own code, not only Monty's.
 
+### Hung workers
+
+A fork-mode worker can deadlock while saving a `timeout-*` (or `crash-*`/`oom-*`) file: libFuzzer writes it from a signal handler that allocates, and the signal can land while the target holds the allocator lock.
+The worker then sleeps forever with an empty artifact open, and the parent never kills it, so each hang silently costs one of the `-fork` workers (`top` shows fewer busy processes).
+Run the watchdog in a second `tmux` window next to the fuzzer:
+
+```bash
+python3 -I crates/fuzz/scripts/fork_watchdog.py --target ast_panic
+```
+
+It kills a worker that has run past its `-max_total_time` or used no CPU for 60 s, and the parent starts a new job in its place.
+Before killing it, it copies the job log's tail to `artifacts/ast_panic/hung-logs/` and writes the input libFuzzer printed (up to 256 bytes) into the empty artifact, so the finding is not lost.
+`--dry-run --once` only reports.
+
 ### Environment variables
 
 | Variable | Default | Effect |
